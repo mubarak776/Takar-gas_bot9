@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Free Income 95 - Final Master App</title>
+    
+    <script src='//libtl.com/sdk.js' data-zone='10981207' data-sdk='show_10981207'></script>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    
+    <style>
+        :root { --bkash: #e2136e; --bg: #f8f9fa; }
+        body { background: var(--bg); font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 80px; -webkit-user-select: none; overflow-x: hidden; }
+        
+        /* লাইভ পেমেন্ট প্রুফ বার */
+        .payment-ticker { background: #2d3436; color: #00ff00; padding: 10px 0; font-size: 13px; white-space: nowrap; overflow: hidden; border-bottom: 2px solid var(--bkash); font-weight: bold; }
+        .ticker-text { display: inline-block; padding-left: 100%; animation: ticker 25s linear infinite; }
+        @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+
+        .header { background: linear-gradient(135deg, #e2136e, #b60e58); padding: 35px 20px; color: white; text-align: center; border-radius: 0 0 35px 35px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .balance-box { font-size: 38px; font-weight: bold; margin: 10px 0; }
+        .card { background: white; border-radius: 22px; padding: 22px; margin: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); text-align: center; border: 1px solid #eee; }
+        
+        .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; background: var(--bkash); color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        .btn:active { transform: scale(0.98); }
+        .support-btn { background: #0088cc; margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+
+        /* উইথড্র হিস্টোরি স্টাইল */
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; text-align: left; }
+        .status-badge { padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: bold; }
+        .st-processing { background: #fff3cd; color: #856404; } /* প্রসেসিং (হলুদ) */
+        .st-success { background: #d4edda; color: #155724; }    /* সফল (সবুজ) */
+
+        nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); border-top: 1px solid #eee; }
+        nav div { color: #888; font-size: 12px; text-align: center; cursor: pointer; transition: 0.3s; }
+        nav div i { display: block; font-size: 22px; margin-bottom: 4px; }
+        .active-nav { color: var(--bkash) !important; font-weight: bold; }
+        .page { display: none; animation: fadeIn 0.4s ease; } .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="payment-ticker">
+        <div class="ticker-text">💰 ইউজার ID: 8598... সফলভাবে ৳৫০০০ বিকাশ পেমেন্ট নিয়েছেন! -- 💰 ইউজার ID: 4421... ৳৫০০০ বিকাশ পেমেন্ট সফল! -- 💰 ইউজার ID: 1024... ৳৭৫০০ পেমেন্ট প্রসেসিং সম্পন্ন!</div>
+    </div>
+
+    <div class="header">
+        <p style="margin:0; opacity:0.9;">আপনার বিকাশ ব্যালেন্স</p>
+        <div class="balance-box" id="bal">৳ 0.00</div>
+        <p style="font-size: 14px; margin-top: 5px;">রেফার সম্পন্ন: <span id="refCount" style="color: #ffd700;">0</span>/১০</p>
+    </div>
+
+    <section id="h" class="page active">
+        <div class="card">
+            <h3>🎥 ভিডিও বিজ্ঞাপন</h3>
+            <p style="color: #666; font-size: 14px;">অ্যাড দেখলে সাথে সাথে ১০ টাকা ব্যালেন্সে যোগ হবে।</p>
+            <button class="btn" id="adBtn" onclick="watchSecureAd()">অ্যাড দেখুন</button>
+        </div>
+        <div class="card">
+            <h3>👫 রেফার লিংক</h3>
+            <p style="font-size: 14px; color: #666;">আপনার আইডি: <b id="uCode" style="color: var(--bkash);">...</b></p>
+            <button class="btn" style="background:#2ecc71;" onclick="copyRef()">লিংক কপি করুন</button>
+        </div>
+    </section>
+
+    <section id="w" class="page">
+        <div class="card">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Bkash_logo.png/640px-Bkash_logo.png" style="width: 100px; margin-bottom: 10px;">
+            <h3>বিকাশ উইথড্র সেন্টার</h3>
+            <div style="background: #fff5f5; border: 1px solid #feb2b2; padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 12px; color: #c53030; font-weight: bold;">
+                শর্ত: ৫০০০ টাকা ব্যালেন্স এবং ১০টি রেফার বাধ্যতামূলক।
+            </div>
+            <input type="number" id="wAmt" placeholder="টাকার পরিমাণ (৳৫০০০+)" style="width:90%; padding:14px; margin-bottom:12px; border:1px solid #ddd; border-radius:12px; font-size: 16px;">
+            <input type="text" id="wNum" placeholder="আপনার বিকাশ নম্বর" style="width:90%; padding:14px; border:1px solid #ddd; border-radius:12px; font-size: 16px;">
+            <button class="btn" style="margin-top: 10px;" onclick="requestWithdraw()">বিকাশে রিকোয়েস্ট পাঠান</button>
+        </div>
+
+        <div class="card">
+            <h4 style="text-align: left;"><i class="fas fa-history"></i> আপনার উত্তোলন হিস্টোরি</h4>
+            <div id="historyList">ইতিহাস নেই</div>
+        </div>
+    </section>
+
+    <section id="help" class="page">
+        <div class="card">
+            <i class="fas fa-headset" style="font-size: 50px; color: var(--bkash); margin-bottom:
